@@ -1,0 +1,10 @@
+﻿<UserControl x:Class="CustomControlsLib.DNITextBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Border x:Name="border" 
+            BorderBrush="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+            BorderThickness="1">
+        <TextBox Text="{Binding DNI, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
+                 Background="White" />
+    </Border>
+</UserControl>
