@@ -18,7 +18,7 @@ namespace CustomControlsLib
         // DependencyProperty for DNI
         public static readonly DependencyProperty DNIProperty =
             DependencyProperty.Register("DNI", typeof(string), typeof(DNITextBox),
-                new PropertyMetadata(string.Empty, OnDNIChanged));
+                new FrameworkPropertyMetadata(string.Empty,FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnDNIChanged));
 
         public string DNI
         {

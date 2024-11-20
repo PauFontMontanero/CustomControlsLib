@@ -19,7 +19,7 @@ namespace CustomControlsLib
         // DependencyProperty for Email
         public static readonly DependencyProperty EmailProperty =
             DependencyProperty.Register("Email", typeof(string), typeof(EmailTextBox),
-                new PropertyMetadata(string.Empty, OnEmailChanged));
+                new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnEmailChanged));
 
         public string Email
         {

@@ -18,7 +18,7 @@ namespace CustomControlsLib
         // DependencyProperty for PhoneNumber
         public static readonly DependencyProperty PhoneNumberProperty =
             DependencyProperty.Register("PhoneNumber", typeof(string), typeof(PhoneMaskTextBox),
-                new PropertyMetadata(string.Empty, OnPhoneNumberChanged));
+                new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnPhoneNumberChanged));
 
         public string PhoneNumber
         {

@@ -18,7 +18,7 @@ namespace CustomControlsLib
         // DependencyProperty for Text
         public static readonly DependencyProperty TextProperty =
             DependencyProperty.Register("Text", typeof(string), typeof(MinLengthTextBox),
-            new PropertyMetadata(string.Empty, OnTextChanged));
+            new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnTextChanged));
 
         public string Text
         {
@@ -29,7 +29,7 @@ namespace CustomControlsLib
         // DependencyProperty for MinLength
         public static readonly DependencyProperty MinLengthProperty =
             DependencyProperty.Register("MinLength", typeof(int), typeof(MinLengthTextBox),
-            new PropertyMetadata(0));
+            new PropertyMetadata(3));
 
         public int MinLength
         {
@@ -40,7 +40,7 @@ namespace CustomControlsLib
         // Read-only property to indicate if the input is valid
         public bool IsValid
         {
-            get { return Text.Length >= MinLength; }
+            get { return (Text != null && Text.Length >= MinLength); }
         }
 
         // Callback to handle text changes and refresh IsValid state
