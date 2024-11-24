@@ -4,8 +4,8 @@
     <Border x:Name="border" 
             BorderBrush="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=UserControl}}" 
             BorderThickness="1">
-        <TextBox x:Name="phoneTextBox" 
-                 Text="{Binding PhoneNumber, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
-                 Background="White" />
+        <TextBox x:Name="phoneTextBox"
+                 Background="White"
+                 ToolTip="{Binding ValidationMessage, RelativeSource={RelativeSource AncestorType=UserControl}}" />
     </Border>
 </UserControl>

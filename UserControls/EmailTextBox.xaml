@@ -4,8 +4,9 @@
     <Border x:Name="border" 
             BorderBrush="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=UserControl}}" 
             BorderThickness="1">
-        <TextBox Text="{Binding Email, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
-                 Background="White" />
+        <TextBox x:Name="textBox"
+                 Text="{Binding Email, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
+                 Background="White"
+                 ToolTip="{Binding ValidationMessage, RelativeSource={RelativeSource AncestorType=UserControl}}" />
     </Border>
 </UserControl>
-

@@ -4,7 +4,10 @@
     <Border x:Name="border" 
             BorderBrush="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=UserControl}}" 
             BorderThickness="1">
-        <TextBox Text="{Binding DNI, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
-                 Background="White" />
+        <TextBox x:Name="textBox"
+                 Text="{Binding DNI, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
+                 MaxLength="9"
+                 Background="White"
+                 ToolTip="{Binding ValidationMessage, RelativeSource={RelativeSource AncestorType=UserControl}}" />
     </Border>
 </UserControl>

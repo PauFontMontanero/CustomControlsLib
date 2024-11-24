@@ -1,24 +1,27 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace CustomControlsLib
 {
-    /// <summary>
-    /// Custom control that validates and masks a phone number input.
-    /// </summary>
     public partial class PhoneMaskTextBox : UserControl
     {
         public PhoneMaskTextBox()
         {
             InitializeComponent();
+            Mask = "+34 ### ### ###";
+            phoneTextBox.PreviewTextInput += PhoneTextBox_PreviewTextInput;
+            phoneTextBox.PreviewKeyDown += PhoneTextBox_PreviewKeyDown;
+            UpdateDisplay();
         }
 
-        // DependencyProperty for PhoneNumber
         public static readonly DependencyProperty PhoneNumberProperty =
             DependencyProperty.Register("PhoneNumber", typeof(string), typeof(PhoneMaskTextBox),
-                new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnPhoneNumberChanged));
+                new FrameworkPropertyMetadata(string.Empty,
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                    OnPhoneNumberChanged));
 
         public string PhoneNumber
         {
@@ -26,42 +29,113 @@ namespace CustomControlsLib
             set { SetValue(PhoneNumberProperty, value); }
         }
 
-        // DependencyProperty for IsValid (read-only)
+        public static readonly DependencyProperty MaskProperty =
+            DependencyProperty.Register("Mask", typeof(string), typeof(PhoneMaskTextBox),
+                new PropertyMetadata("+34 ### ### ###"));
+
+        public string Mask
+        {
+            get { return (string)GetValue(MaskProperty); }
+            set { SetValue(MaskProperty, value); }
+        }
+
         public static readonly DependencyProperty IsValidProperty =
             DependencyProperty.Register("IsValid", typeof(bool), typeof(PhoneMaskTextBox),
-                new PropertyMetadata(false));
+                new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
         public bool IsValid
         {
             get { return (bool)GetValue(IsValidProperty); }
-            private set { SetValue(IsValidProperty, value); }
+            set { SetValue(IsValidProperty, value); }
         }
 
-        // Callback to handle phone number changes and update the IsValid state
+        public static readonly DependencyProperty ValidationMessageProperty =
+            DependencyProperty.Register("ValidationMessage", typeof(string), typeof(PhoneMaskTextBox),
+                new PropertyMetadata(string.Empty));
+
+        public string ValidationMessage
+        {
+            get { return (string)GetValue(ValidationMessageProperty); }
+            private set { SetValue(ValidationMessageProperty, value); }
+        }
+
         private static void OnPhoneNumberChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var control = (PhoneMaskTextBox)d;
-            control.IsValid = Regex.IsMatch(control.PhoneNumber, @"^\d{9}$");
-            control.UpdateBorderColor();
-            control.ApplyMask();
+            control._numericValue = control.PhoneNumber ?? string.Empty;
+            control.UpdateDisplay();
+            control.ValidateInput();
         }
 
-        // Method to update the border color based on the IsValid property
+        private string _numericValue = string.Empty;
+
+        private void PhoneTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (!char.IsDigit(e.Text[0]))
+            {
+                e.Handled = true;
+                return;
+            }
+
+            int maxDigits = Mask.Count(c => c == '#');
+
+            if (_numericValue.Length < maxDigits)
+            {
+                _numericValue += e.Text;
+                UpdateDisplay();
+                PhoneNumber = _numericValue;
+                e.Handled = true;
+            }
+            else
+            {
+                e.Handled = true;
+            }
+
+            ValidateInput();
+        }
+
+        private void PhoneTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Back && _numericValue.Length > 0)
+            {
+                _numericValue = _numericValue.Substring(0, _numericValue.Length - 1);
+                PhoneNumber = _numericValue;
+                UpdateDisplay();
+                ValidateInput();
+                e.Handled = true;
+            }
+        }
+
+        private void UpdateDisplay()
+        {
+            string display = Mask;
+            int valueIndex = 0;
+
+            for (int i = 0; i < display.Length && valueIndex < _numericValue.Length; i++)
+            {
+                if (display[i] == '#')
+                {
+                    display = display.Substring(0, i) + _numericValue[valueIndex] + display.Substring(i + 1);
+                    valueIndex++;
+                }
+            }
+
+            phoneTextBox.Text = display;
+        }
+
+        private void ValidateInput()
+        {
+            int requiredDigits = Mask.Count(c => c == '#');
+            IsValid = _numericValue.Length == requiredDigits;
+            ValidationMessage = IsValid
+                ? "Valid Number"
+                : $"Phone number must have {requiredDigits} digits ({_numericValue.Length}/{requiredDigits})";
+            UpdateBorderColor();
+        }
+
         private void UpdateBorderColor()
         {
             BorderBrush = IsValid ? new SolidColorBrush(Colors.Gray) : new SolidColorBrush(Colors.Red);
-        }
-
-        // Method to apply a mask to the phone number
-        private void ApplyMask()
-        {
-            if (PhoneNumber.Length > 0)
-            {
-                // Display as XXX-XXX-XXX format
-                string maskedPhone = Regex.Replace(PhoneNumber, @"(\d{3})(\d{3})(\d{3})", "$1-$2-$3");
-                // Update displayed text (for illustrative purposes, assuming TextBox is named phoneTextBox)
-                phoneTextBox.Text = maskedPhone;
-            }
         }
     }
 }

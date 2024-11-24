@@ -4,21 +4,18 @@ using System.Windows.Media;
 
 namespace CustomControlsLib
 {
-    /// <summary>
-    /// Custom control that validates the minimum length of a text input.
-    /// </summary>
     public partial class MinLengthTextBox : UserControl
     {
-        // Constructor
         public MinLengthTextBox()
         {
             InitializeComponent();
         }
 
-        // DependencyProperty for Text
         public static readonly DependencyProperty TextProperty =
             DependencyProperty.Register("Text", typeof(string), typeof(MinLengthTextBox),
-            new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnTextChanged));
+                new FrameworkPropertyMetadata(string.Empty,
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                    OnTextChanged));
 
         public string Text
         {
@@ -26,10 +23,9 @@ namespace CustomControlsLib
             set { SetValue(TextProperty, value); }
         }
 
-        // DependencyProperty for MinLength
         public static readonly DependencyProperty MinLengthProperty =
             DependencyProperty.Register("MinLength", typeof(int), typeof(MinLengthTextBox),
-            new PropertyMetadata(3));
+                new PropertyMetadata(3));
 
         public int MinLength
         {
@@ -37,20 +33,49 @@ namespace CustomControlsLib
             set { SetValue(MinLengthProperty, value); }
         }
 
-        // Read-only property to indicate if the input is valid
+        public static readonly DependencyProperty IsValidProperty =
+            DependencyProperty.Register("IsValid", typeof(bool), typeof(MinLengthTextBox),
+                new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+
         public bool IsValid
         {
-            get { return (Text != null && Text.Length >= MinLength); }
+            get { return (bool)GetValue(IsValidProperty); }
+            set { SetValue(IsValidProperty, value); }
         }
 
-        // Callback to handle text changes and refresh IsValid state
+        public static readonly DependencyProperty ValidationMessageProperty =
+            DependencyProperty.Register("ValidationMessage", typeof(string), typeof(MinLengthTextBox),
+                new PropertyMetadata(string.Empty));
+
+        public string ValidationMessage
+        {
+            get { return (string)GetValue(ValidationMessageProperty); }
+            private set { SetValue(ValidationMessageProperty, value); }
+        }
+
         private static void OnTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var control = (MinLengthTextBox)d;
-            control.UpdateBorderColor();
+            control.ValidateText();
         }
 
-        // Updates the border color based on validation
+        private void ValidateText()
+        {
+            if (string.IsNullOrEmpty(Text))
+            {
+                IsValid = false;
+                ValidationMessage = $"Text must be at least {MinLength} characters long (current: 0)";
+            }
+            else
+            {
+                IsValid = Text.Length >= MinLength;
+                ValidationMessage = IsValid
+                    ? "Valid Name"
+                    : $"Text must be at least {MinLength} characters long (current: {Text.Length})";
+            }
+            UpdateBorderColor();
+        }
+
         private void UpdateBorderColor()
         {
             BorderBrush = IsValid ? new SolidColorBrush(Colors.Gray) : new SolidColorBrush(Colors.Red);
